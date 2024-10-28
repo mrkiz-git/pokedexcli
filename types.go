@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mrkiz-git/pokedexcli/pokeapi" // Import your package
+	"github.com/mrkiz-git/pokedexcli/pokeapi"
 )
 
 // CliConfig represents the needed data for this session
