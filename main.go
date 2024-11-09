@@ -49,6 +49,11 @@ func GetCommands() map[string]CliCommand {
 			Description: "Inspect Pockemon in Pockadox",
 			Callback:    CommandInspect,
 		},
+		"pokedex": {
+			Name:        "Pokedex",
+			Description: "Inspect all the Pockemons in the Pockadox",
+			Callback:    CommandPokedex,
+		},
 	}
 }
 
@@ -187,6 +192,18 @@ func CommandInspect(config *CliConfig, args []string) error {
 		fmt.Printf("Pockemon no found")
 		return nil
 	}
+}
+
+func CommandPokedex(config *CliConfig, args []string) error {
+	if len(config.pokedex) == 0 {
+		fmt.Printf("Pokedex is empty")
+		return nil
+	}
+
+	for _, val := range config.pokedex {
+		fmt.Printf("- %s\n", val.Name)
+	}
+	return nil
 }
 
 func CommandExit(config *CliConfig, args []string) error {
