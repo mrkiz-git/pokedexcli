@@ -33,10 +33,15 @@ func GetCommands() map[string]CliCommand {
 			Description: "Displays the previous 20 locations",
 			Callback:    CommandMapBack,
 		},
+		"explore": {
+			Name:        "Explore location",
+			Description: "Displays all the Pokémon in a given areas",
+			Callback:    CommandExplore,
+		},
 	}
 }
 
-func CommandHelp(*CliConfig) error {
+func CommandHelp(config *CliConfig, args []string) error {
 
 	commands := GetCommands()
 	fmt.Println("Welcome to the Pokedex!")
@@ -49,11 +54,11 @@ func CommandHelp(*CliConfig) error {
 	return nil
 }
 
-func CommandMap(config *CliConfig) error {
+func CommandMap(config *CliConfig, args []string) error {
 
 	log.Println("Fetching locations...")
 
-	resp, err := config.pokeapiClient.ListLocationAreas(config.NextLocationUrl)
+	resp, err := config.pokeapiClient.GetLocationAreas(config.NextLocationUrl)
 	if err != nil {
 		log.Printf("Error fetching locations: %v", err)
 		return err
@@ -75,7 +80,7 @@ func CommandMap(config *CliConfig) error {
 	return nil
 }
 
-func CommandMapBack(config *CliConfig) error {
+func CommandMapBack(config *CliConfig, args []string) error {
 	log.Println("Executing mapb command")
 
 	if config.PrevLocationUrl == nil {
@@ -85,7 +90,7 @@ func CommandMapBack(config *CliConfig) error {
 
 	log.Printf("Using previous URL: %v", *config.PrevLocationUrl)
 
-	resp, err := config.pokeapiClient.ListLocationAreas(config.PrevLocationUrl)
+	resp, err := config.pokeapiClient.GetLocationAreas(config.PrevLocationUrl)
 	if err != nil {
 		log.Printf("Error fetching previous locations: %v", err)
 		return err
@@ -105,7 +110,32 @@ func CommandMapBack(config *CliConfig) error {
 	return nil
 }
 
-func CommandExit(config *CliConfig) error {
+func CommandExplore(config *CliConfig, args []string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("wrong number of arguments provided")
+	}
+	log.Printf("Executing Explore Command for %s", args[0])
+
+	resp, err := config.pokeapiClient.GetLocation(&args[0])
+	if err != nil {
+		log.Printf("Error geting location %v", err)
+		return err
+	}
+
+	if len(resp.PokemonEncounters) < 1 {
+		fmt.Println("No Pokemon found at this location")
+		return nil
+	}
+
+	fmt.Printf("Exploring %s...", args[0])
+	for _, encounter := range resp.PokemonEncounters {
+		fmt.Println("- ", encounter.Pokemon.Name)
+	}
+	return nil
+
+}
+
+func CommandExit(config *CliConfig, args []string) error {
 
 	os.Exit(0)
 	return nil
@@ -128,14 +158,18 @@ func startRepl() {
 		scanner.Scan()
 		input := strings.TrimSpace(scanner.Text())
 
-		if input == "" {
+		words := strings.Fields(input)
+		if len(words) == 0 {
 			log.Println("Empty input received")
 			continue
 		}
 
-		if command, exists := commands[input]; exists {
+		commandName := words[0]
+		args := words[1:]
 
-			err := command.Callback(cliConfig)
+		if command, exists := commands[commandName]; exists {
+
+			err := command.Callback(cliConfig, args)
 			if err != nil {
 
 				fmt.Println("Error:", err)

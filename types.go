@@ -15,5 +15,5 @@ type CliConfig struct {
 type CliCommand struct {
 	Name        string
 	Description string
-	Callback    func(*CliConfig) error
+	Callback    func(*CliConfig, []string) error
 }
