@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -37,6 +38,11 @@ func GetCommands() map[string]CliCommand {
 			Name:        "Explore location",
 			Description: "Displays all the Pokémon in a given areas",
 			Callback:    CommandExplore,
+		},
+		"catch": {
+			Name:        "Catch Pockemon",
+			Description: "Catch Pockemon",
+			Callback:    CommandCatch,
 		},
 	}
 }
@@ -135,6 +141,33 @@ func CommandExplore(config *CliConfig, args []string) error {
 
 }
 
+func CommandCatch(config *CliConfig, args []string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("wrong number of arguments provided\n")
+	}
+
+	resp, err := config.pokeapiClient.GetPockemon(&args[0])
+	if err != nil {
+		log.Printf("Error geting pockemon %v", err)
+		return err
+	}
+
+	fmt.Printf("Throwing a Pokeball at %s\n", args[0])
+	randomNumber := rand.Intn(501)
+	fmt.Printf("Base Experience: %d\n", resp.BaseExperience)
+	fmt.Printf("Random Number: %d\n", randomNumber)
+
+	if randomNumber >= resp.BaseExperience {
+		config.pokedex[args[0]] = *resp
+		fmt.Printf("%s was caught!\n", resp.Name)
+		return nil
+	} else {
+		fmt.Printf("%s was escaped!\n", resp.Name)
+		return nil
+	}
+
+}
+
 func CommandExit(config *CliConfig, args []string) error {
 
 	os.Exit(0)
@@ -151,6 +184,7 @@ func startRepl() {
 		NextLocationUrl: nil,
 		PrevLocationUrl: nil,
 		pokeapiClient:   pokeapi.New(),
+		pokedex:         make(map[string]pokeapi.Pokemon),
 	}
 
 	for {

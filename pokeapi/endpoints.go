@@ -31,3 +31,17 @@ func (c *Client) GetLocation(location *string) (*Location, error) {
 	}
 	return &response, nil
 }
+
+func (c *Client) GetPockemon(pockemon *string) (*Pokemon, error) {
+	url := baseURL + "/pokemon"
+
+	if pockemon != nil {
+		url = fmt.Sprintf("%s/%s", url, *pockemon)
+	}
+
+	var response Pokemon
+	if err := Fetch(c, url, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}

@@ -9,6 +9,7 @@ type CliConfig struct {
 	NextLocationUrl *string
 	PrevLocationUrl *string
 	pokeapiClient   *pokeapi.Client
+	pokedex         map[string]pokeapi.Pokemon
 }
 
 // CliCommand represents a command in the CLI application
