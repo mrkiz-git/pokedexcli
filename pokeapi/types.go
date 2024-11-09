@@ -1,5 +1,10 @@
 package pokeapi
 
+import (
+	"fmt"
+	"strings"
+)
+
 type ListResponse[T any] struct {
 	Count    int     `json:"count"`
 	Next     *string `json:"next"`
@@ -370,4 +375,28 @@ type Pokemon struct {
 		} `json:"type"`
 	} `json:"types"`
 	Weight int `json:"weight"`
+}
+
+// Add a method to print the Pokemon struct in the desired format
+func (p Pokemon) String() string {
+	var builder strings.Builder
+
+	// Add basic details
+	builder.WriteString(fmt.Sprintf("Name: %s\n", p.Name))
+	builder.WriteString(fmt.Sprintf("Height: %d\n", p.Height))
+	builder.WriteString(fmt.Sprintf("Weight: %d\n", p.Weight))
+
+	// Add Stats
+	builder.WriteString("Stats:\n")
+	for _, stat := range p.Stats {
+		builder.WriteString(fmt.Sprintf("  - %s: %d\n", stat.Stat.Name, stat.BaseStat))
+	}
+
+	// Add Types
+	builder.WriteString("Types:\n")
+	for _, typ := range p.Types {
+		builder.WriteString(fmt.Sprintf("  - %s\n", typ.Type.Name))
+	}
+
+	return builder.String()
 }

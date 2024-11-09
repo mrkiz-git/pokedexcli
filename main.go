@@ -44,6 +44,11 @@ func GetCommands() map[string]CliCommand {
 			Description: "Catch Pockemon",
 			Callback:    CommandCatch,
 		},
+		"inspect": {
+			Name:        "Inspect Pockemon",
+			Description: "Inspect Pockemon in Pockadox",
+			Callback:    CommandInspect,
+		},
 	}
 }
 
@@ -166,6 +171,22 @@ func CommandCatch(config *CliConfig, args []string) error {
 		return nil
 	}
 
+}
+
+func CommandInspect(config *CliConfig, args []string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("wrong number of arguments provided")
+	}
+
+	value, exists := config.pokedex[args[0]]
+
+	if exists {
+		fmt.Print(value)
+		return nil
+	} else {
+		fmt.Printf("Pockemon no found")
+		return nil
+	}
 }
 
 func CommandExit(config *CliConfig, args []string) error {
